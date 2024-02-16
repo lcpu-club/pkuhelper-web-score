@@ -1,8 +1,6 @@
 // @ts-check
 /* eslint-env node */
 
-import fetch from 'node-fetch';
-
 function parseCookies(response) {
   const raw = response.headers.get("set-cookie");
   
