@@ -38,7 +38,6 @@
     "@angular/compiler-cli": "^14.0.0",
     "@typescript-eslint/eslint-plugin": "5.29.0",
     "@typescript-eslint/parser": "5.29.0",
-    "@vercel/node": "^2.2.0",
     "autoprefixer": "^10.4.7",
     "eslint": "^8.18.0",
     "eslint-plugin-only-warn": "^1.0.3",
