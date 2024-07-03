@@ -43,7 +43,6 @@ export async function onRequest(context) {
     },
     body: iaaaParams.toString(),
   });
-
   const r = await loginResponse.json();
 
   if (!r.success) {
@@ -59,7 +58,7 @@ export async function onRequest(context) {
   console.log("IAAA: ", r);
 
   let cookie = null;
-  const portalResponse = await fetch(`${REDIR_URL}?token=${r.token}`, {
+  const portalResponse = await fetch(`${REDIR_URL}?token=${r.token}`,{
     redirect: "manual",
   });
   cookie = parseCookies(portalResponse);
@@ -75,12 +74,38 @@ export async function onRequest(context) {
     });
   }
 
+  await fetch("https://portal.pku.edu.cn/portal2017/util/portletRedir.do?portletId=myscores", {
+    headers: {
+      "cookie": cookie,
+    },
+    redirect: "manual",
+  })
+
+  const firstStep = await fetch("https://portal.pku.edu.cn/portal2017/util/appSysRedir.do?appId=portalPublicQuery&p1=myScore", {
+    "headers": {
+      "cookie": cookie,
+    },
+    redirect: "manual",
+  })
+  console.log("RedirectLink: ", firstStep.headers.get("location"));
+  let nextStepLink = firstStep.headers.get("location");
+
+  let res = await fetch(`${nextStepLink}`, {
+    redirect: "manual",
+  });
+  console.log("GetNewSessionID: ", res.headers.get("set-cookie"));
+  cookie = parseCookies(res);
+
   const scoresResponse = await fetch(
-    "https://portal.pku.edu.cn/portal2017/bizcenter/score/retrScores.do", {
-      headers: {
-        cookie,
+    "https://portal.pku.edu.cn/publicQuery/ctrl/topic/myScore/retrScores.do", {
+      "headers": {
+          "Accept": "application/json, text/plain, */*",
+          "Cookie": cookie,
       },
-    }
+      "referrer": "https://portal.pku.edu.cn/publicQuery/",
+      "method": "GET",
+      "mode": "cors"
+  }
   );
   const r3 = await scoresResponse.text();
 
