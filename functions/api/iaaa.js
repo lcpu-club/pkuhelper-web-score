@@ -18,12 +18,12 @@ function parseCookies(response) {
     .join("; ");
 }
 
-
 export async function onRequest(context) {
   const { request } = context;
   const url = new URL(request.url);
   const username = url.searchParams.get('username');
   const password = url.searchParams.get('password');
+  const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36";
   
   if (!username || !password) {
     return new Response(null, { status: 400 });
@@ -39,7 +39,23 @@ export async function onRequest(context) {
   const loginResponse = await fetch(`https://iaaa.pku.edu.cn/iaaa/oauthlogin.do`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "host": "iaaa.pku.edu.cn",
+      "user-agent": UA,
+      "accept": "application/json, text/javascript, */*; q=0.01",
+      "accept-language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+      "accept-encoding": "gzip, br",
+      "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "x-requested-with": "XMLHttpRequest",
+      "origin": "https://iaaa.pku.edu.cn",
+      "dnt": "1",
+      "sec-gpc": "1",
+      "referer": "https://iaaa.pku.edu.cn/iaaa/oauth.jsp?appID=portal2017&appName=%E5%8C%97%E4%BA%AC%E5%A4%A7%E5%AD%A6%E6%A0%A1%E5%86%85%E4%BF%A1%E6%81%AF%E9%97%A8%E6%88%B7%E6%96%B0%E7%89%88&redirectUrl=https%3A%2F%2Fportal.pku.edu.cn%2Fportal2017%2FssoLogin.do",
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
+      "priority": "u=1",
+      "te": "trailers",
+      "Connection": "close"
     },
     body: iaaaParams.toString(),
   });
@@ -74,11 +90,29 @@ export async function onRequest(context) {
     });
   }
 
+  const header = {
+    "host": "portal.pku.edu.cn",
+    "user-agent": UA,
+    "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+    "accept-language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+    "accept-encoding": "gzip, br",
+    "dnt": "1",
+    "sec-gpc": "1",
+    "referer": "https://portal.pku.edu.cn/portal2017/",
+    "cookie": cookie,
+    "upgrade-insecure-requests": "1",
+    "sec-fetch-dest": "document",
+    "sec-fetch-mode": "navigate",
+    "sec-fetch-site": "same-origin",
+    "sec-fetch-user": "?1",
+    "priority": "u=1",
+    "te": "trailers",
+    "Connection": "close"
+  };
+
   try {
     await fetch("https://portal.pku.edu.cn/portal2017/util/portletRedir.do?portletId=myscores", {
-      headers: {
-        "cookie": cookie,
-      },
+      headers: header,
       redirect: "manual",
     })
   } catch (e) {
@@ -93,9 +127,7 @@ export async function onRequest(context) {
 
   try {
     const firstStep = await fetch("https://portal.pku.edu.cn/portal2017/util/appSysRedir.do?appId=portalPublicQuery&p1=myScore", {
-      "headers": {
-        "cookie": cookie,
-      },
+      "headers": header,
       redirect: "manual",
     })
     console.log("RedirectLink: ", firstStep.headers.get("location"));
@@ -105,6 +137,7 @@ export async function onRequest(context) {
       redirect: "manual",
     });
     console.log("GetNewSessionID: ", res.headers.get("set-cookie"));
+    console.log("GetNewLocation: ", cookie.split(";")[0].split("=")[1]);
     cookie = parseCookies(res);
   } catch (e) {
     return new Response(JSON.stringify({
@@ -119,10 +152,21 @@ export async function onRequest(context) {
   const scoresResponse = await fetch(
     "https://portal.pku.edu.cn/publicQuery/ctrl/topic/myScore/retrScores.do", {
       "headers": {
-          "Accept": "application/json, text/plain, */*",
-          "Cookie": cookie,
+        "host": "portal.pku.edu.cn",
+        "user-agent": UA,
+        "accept": "application/json, text/plain, */*",
+        "accept-language": "zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2",
+        "accept-encoding": "gzip, br",
+        "dnt": "1",
+        "sec-gpc": "1",
+        "referer": `https://portal.pku.edu.cn/publicQuery/;jsessionid=${cookie.split(";")[0].split("=")[1]}`,
+        "cookie": cookie,
+        "sec-fetch-dest": "empty",
+        "sec-fetch-mode": "cors",
+        "sec-fetch-site": "same-origin",
+        "te": "trailers",
+        "Connection": "close"
       },
-      "referrer": "https://portal.pku.edu.cn/publicQuery/",
       "method": "GET",
       "mode": "cors"
   }
