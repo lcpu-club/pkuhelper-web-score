@@ -86,6 +86,8 @@ export async function onRequest(context) {
     stepOne.headers.forEach((v, k) => {
       console.log(k, v);
     });
+    const stepOneText = await stepOne.text();
+    console.log("StepOneText: ", stepOneText);
   } catch (e) {
     return new Response(JSON.stringify({
       success: false,
