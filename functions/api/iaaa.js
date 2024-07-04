@@ -75,12 +75,17 @@ export async function onRequest(context) {
   }
 
   try {
-    await fetch("https://portal.pku.edu.cn/portal2017/util/portletRedir.do?portletId=myscores", {
+    const stepOne = await fetch("https://portal.pku.edu.cn/portal2017/util/portletRedir.do?portletId=myscores", {
       headers: {
         "cookie": cookie,
       },
       redirect: "manual",
     })
+    console.log("StepOne: ", stepOne.status);
+    console.log("url: ", stepOne.url);
+    stepOne.headers.forEach((v, k) => {
+      console.log(k, v);
+    });
   } catch (e) {
     return new Response(JSON.stringify({
       success: false,
