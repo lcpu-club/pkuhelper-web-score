@@ -98,7 +98,7 @@ export async function onRequest(context) {
       },
       redirect: "manual",
     })
-    console.log(firstStep);
+    console.log(firstStep.headers);
     console.log("RedirectLink: ", firstStep.headers.get("location"));
     let nextStepLink = firstStep.headers.get("location");
 
