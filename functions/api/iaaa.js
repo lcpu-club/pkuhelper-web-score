@@ -99,6 +99,7 @@ export async function onRequest(context) {
       redirect: "manual",
     });
     console.log("FirstStep: ", firstStep.status);
+    console.log("url: ", firstStep.url);
     console.log("FirstStepHeaders: ", firstStep.headers);
     console.log("RedirectLink: ", firstStep.headers.get("location"));
     let nextStepLink = firstStep.headers.get("location");
