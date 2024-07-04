@@ -100,6 +100,8 @@ export async function onRequest(context) {
     });
     console.log("FirstStep: ", firstStep.status);
     console.log("url: ", firstStep.url);
+    const rr = await firstStep.json();
+    console.log(rr);
     console.log("FirstStepHeaders: ", firstStep.headers);
     console.log("RedirectLink: ", firstStep.headers.get("location"));
     let nextStepLink = firstStep.headers.get("location");
