@@ -45,7 +45,7 @@ export class ControllerComponent implements OnInit {
   }
 
   readonly INTERVAL = 300 * 1000;
-  interval: number | null = null;
+  interval: NodeJS.Timeout | null = null;
   nextUpdateTime = 0;
   toggleAutoReload() {
     if (this.interval) {

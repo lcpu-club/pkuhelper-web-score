@@ -30,10 +30,11 @@ export async function onRequest(context) {
   }
 
   const iaaaParams = new URLSearchParams();
-  iaaaParams.append("appid", "portal2017");
+  iaaaParams.append("appid", "portalPublicQuery");
   iaaaParams.append("userName", username);
   iaaaParams.append("password", password);
-  const REDIR_URL = `https://portal.pku.edu.cn/portal2017/ssoLogin.do`;
+  const MOD_ID = "myScore"
+  const REDIR_URL = `https://portal.pku.edu.cn/publicQuery/ssoLogin.do?moduleID=${MOD_ID}`;
   iaaaParams.append("redirUrl", REDIR_URL);
 
   const loginResponse = await fetch(`https://iaaa.pku.edu.cn/iaaa/oauthlogin.do`, {
@@ -59,7 +60,7 @@ export async function onRequest(context) {
   console.log("IAAA: ", r);
 
   let cookie = null;
-  const portalResponse = await fetch(`${REDIR_URL}?token=${r.token}`, {
+  const portalResponse = await fetch(`${REDIR_URL}?moduleID=${MOD_ID}&token=${r.token}`, {
     redirect: "manual",
   });
   cookie = parseCookies(portalResponse);
@@ -76,7 +77,7 @@ export async function onRequest(context) {
   }
 
   const scoresResponse = await fetch(
-    "https://portal.pku.edu.cn/portal2017/bizcenter/score/retrScores.do", {
+    "https://portal.pku.edu.cn/publicQuery/ctrl/topic/myScore/retrScores.do", {
       headers: {
         cookie,
       },
